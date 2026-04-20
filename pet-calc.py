@@ -2,7 +2,7 @@ import random
 
 trials = 1000000
 max_pet = 8 #최대 계산하는 당첨 마릿수
-single_prob = 0.03 #뽑기 당첨 확률
+single_prob = 0.02 #뽑기 당첨 확률
 
 # 11회 뽑기 횟수 입력
 n = int(input("뽑기 횟수 입력 (1회 시도마다 11번 도전): "))

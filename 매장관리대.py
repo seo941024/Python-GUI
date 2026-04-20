@@ -4,7 +4,7 @@ import random
 
 def main(page: ft.Page):
     page.title = "Simple Market"
-    page.bgcolor = "#fffde7"
+    page.bgcolor = "#fafafa"  # 전체 밝은 회색(눈 편함)
 
     # -------------------------
     # 데이터
@@ -32,24 +32,25 @@ def main(page: ft.Page):
     # -------------------------
     cart = []
     total_cash = 0
-    today_total = 0   # ⭐ 추가된 전역 누적 매출
+    today_total = 0
 
     # -------------------------
     # UI
     # -------------------------
-    name_input = ft.TextField(label="상품 이름")
-    qty_input = ft.TextField(label="수량")
+    name_input = ft.TextField(label="상품 이름", border_color="#fdd835")
+    qty_input = ft.TextField(label="수량", border_color="#fdd835")
 
-    output = ft.Text(color="black")
-    total_text = ft.Text("총 금액: 0원", size=16, weight="bold", color="black")
-    today_text = ft.Text("오늘 총 매출: 0원", size=14, weight="bold", color="black")
+    output = ft.Text(color="#333")
+
+    total_text = ft.Text("총 금액: 0원", size=16, weight="bold", color="#333")
+    today_text = ft.Text("오늘 총 매출: 0원", size=14, weight="bold", color="#333")
 
     cart_view = ft.Column(scroll=True, height=250)
     danger_view = ft.Column(scroll=True, height=400)
     discount_view = ft.Column(scroll=True, height=400)
 
     # -------------------------
-    # 위험 재고 (5개 이하)
+    # 위험 재고 (톤 다운된 경고색)
     # -------------------------
     def load_danger():
         danger_view.controls.clear()
@@ -60,18 +61,19 @@ def main(page: ft.Page):
                     ft.Container(
                         content=ft.Text(
                             f"{v['name']} | 재고:{v['stock']}",
-                            color="black"
+                            color="#5d4037"  # 부드러운 갈색 텍스트
                         ),
-                        bgcolor="#ffcdd2",
-                        padding=6,
-                        border_radius=8
+                        bgcolor="#fff3e0",  # 연한 주황 (부드러운 경고)
+                        padding=8,
+                        border_radius=10,
+                        border=ft.border.all(1, "#ffcc80")
                     )
                 )
 
         page.update()
 
     # -------------------------
-    # 할인 (자동 1회)
+    # 할인
     # -------------------------
     def load_discount():
         discount_view.controls.clear()
@@ -90,9 +92,15 @@ def main(page: ft.Page):
             v["price"] = int(old * 0.9)
 
             discount_view.controls.append(
-                ft.Text(
-                    f"{v['name']} {old} → {v['price']}",
-                    color="black"
+                ft.Container(
+                    content=ft.Text(
+                        f"{v['name']}  {old} → {v['price']}",
+                        color="#4e342e"
+                    ),
+                    bgcolor="#fffde7",
+                    padding=6,
+                    border_radius=8,
+                    border=ft.border.all(1, "#ffe082")
                 )
             )
 
@@ -129,7 +137,7 @@ def main(page: ft.Page):
             return
 
         if v["stock"] < qty:
-            output.value = "재고 부족"
+            output.value = "재고 부족 ⚠"
             page.update()
             return
 
@@ -139,7 +147,13 @@ def main(page: ft.Page):
         cart.append((k, v["name"], qty, price))
 
         cart_view.controls.append(
-            ft.Text(f"{v['name']} x{qty} = {price}원", color="black")
+            ft.Container(
+                content=ft.Text(f"{v['name']} x{qty} = {price}원"),
+                padding=6,
+                bgcolor="#fffde7",
+                border_radius=8,
+                border=ft.border.all(1, "#ffe082")
+            )
         )
 
         total_cash += price
@@ -154,7 +168,7 @@ def main(page: ft.Page):
         page.update()
 
     # -------------------------
-    # 구매 (⭐ 오늘 매출 추가)
+    # 구매
     # -------------------------
     def buy(e):
         nonlocal total_cash, today_total
@@ -166,7 +180,7 @@ def main(page: ft.Page):
 
         receipt += f"\n이번 구매: {total_cash}원"
 
-        today_total += total_cash  # ⭐ 핵심 추가
+        today_total += total_cash
 
         receipt += f"\n오늘 총 매출: {today_total}원"
 
@@ -185,70 +199,77 @@ def main(page: ft.Page):
         page.update()
 
     # -------------------------
-    # UI
+    # UI Layout
     # -------------------------
     page.add(
+        ft.Container(
+            padding=10,
+            content=ft.Row(
+                expand=True,
+                controls=[
 
-        ft.Row(
-            expand=True,
-            vertical_alignment=ft.CrossAxisAlignment.START,
-            controls=[
+                    # LEFT
+                    ft.Container(
+                        width=260,
+                        bgcolor="white",
+                        padding=12,
+                        border=ft.border.all(2, "#ffe082"),
+                        border_radius=12,
+                        content=ft.Column([
+                            ft.Text("⚠ 위험 재고", weight="bold", color="#5d4037"),
+                            danger_view
+                        ])
+                    ),
 
-                # LEFT
-                ft.Container(
-                    width=250,
-                    bgcolor="#fff8e1",
-                    padding=10,
-                    content=ft.Column([
-                        ft.Text("⚠ 위험 재고 (5개 이하)", color="black", weight="bold"),
-                        danger_view
-                    ])
-                ),
+                    # CENTER
+                    ft.Container(
+                        expand=True,
+                        padding=20,
+                        bgcolor="white",
+                        border=ft.border.all(2, "#ffe082"),
+                        border_radius=12,
+                        content=ft.Column([
 
-                # CENTER
-                ft.Container(
-                    expand=True,
-                    padding=20,
-                    bgcolor="white",
-                    content=ft.Column([
+                            ft.Text("🛒 Simple Market", size=22, weight="bold", color="#4e342e"),
 
-                        ft.Text("🛒 Simple Market", size=22, weight="bold", color="black"),
+                            name_input,
+                            qty_input,
 
-                        name_input,
-                        qty_input,
+                            ft.Row([
+                                ft.ElevatedButton("장바구니", on_click=add_cart, bgcolor="#ffe082", color="#4e342e"),
+                                ft.ElevatedButton("구매", on_click=buy, bgcolor="#ffd54f", color="#4e342e"),
+                            ]),
 
-                        ft.Row([
-                            ft.ElevatedButton("장바구니", on_click=add_cart, bgcolor="#ffe082", color="black"),
-                            ft.ElevatedButton("구매", on_click=buy, bgcolor="#ffd54f", color="black"),
-                        ]),
+                            ft.Divider(),
 
-                        ft.Divider(),
+                            ft.Text("🧾 장바구니"),
+                            cart_view,
 
-                        ft.Text("🧾 장바구니", color="black"),
-                        cart_view,
+                            ft.Divider(),
 
-                        ft.Divider(),
+                            total_text,
+                            today_text,
 
-                        total_text,
-                        today_text,  # ⭐ 추가된 표시
+                            ft.Divider(),
 
-                        ft.Divider(),
+                            output
+                        ])
+                    ),
 
-                        output
-                    ])
-                ),
-
-                # RIGHT
-                ft.Container(
-                    width=250,
-                    bgcolor="#fff3e0",
-                    padding=10,
-                    content=ft.Column([
-                        ft.Text("💛 할인 목록", color="black", weight="bold"),
-                        discount_view
-                    ])
-                )
-            ]
+                    # RIGHT
+                    ft.Container(
+                        width=260,
+                        bgcolor="white",
+                        padding=12,
+                        border=ft.border.all(2, "#ffe082"),
+                        border_radius=12,
+                        content=ft.Column([
+                            ft.Text("💛 할인 목록", weight="bold", color="#5d4037"),
+                            discount_view
+                        ])
+                    )
+                ]
+            )
         )
     )
 
