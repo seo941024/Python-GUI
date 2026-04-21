@@ -1,116 +1,123 @@
 import flet as ft
 
-class NumberExtractor:
-    def extract_numbers(self, inputs):
-        pass  # to be overridden
 
+class Calculator:
+    def __init__(self, numbers):
+        self.numbers = numbers
 
-class Calculator(NumberExtractor):
-    def __init__(self, inputs):
-        self.numbers = []
-        self.non_numbers = []
-        self.extract_numbers(inputs)
+    def get_all_results(self):
+        if not self.numbers:
+            return "No numbers provided"
 
-    def extract_numbers(self, inputs):
-        for item in inputs:
-            if isinstance(item, int):
-                self.numbers.append(item)
-            elif isinstance(item, (list, tuple)):
-                for sub in item:
-                    if isinstance(sub, int):
-                        self.numbers.append(sub)
-                    else:
-                        self.non_numbers.append(sub)
-            else:
-                self.non_numbers.append(item)
+        results = {}
 
-        if self.non_numbers:
-            print(f"Non-numeric inputs: {self.non_numbers}")
+        results["add"] = sum(self.numbers)
 
-    def add(self):
-        return sum(self.numbers)
-
-    def subtract(self):
-        result = self.numbers[0]
+        sub = self.numbers[0]
         for n in self.numbers[1:]:
-            result -= n
-        return result
+            sub -= n
+        results["subtract"] = sub
 
-    def multiply(self):
-        result = 1
+        mul = 1
         for n in self.numbers:
-            result *= n
-        return result
+            mul *= n
+        results["multiply"] = mul
 
-    def divide(self):
-        result = self.numbers[0]
+        div = self.numbers[0]
         for n in self.numbers[1:]:
             if n == 0:
-                print("cannot divide by zero.")
-                return None
-            result /= n
-        return result
+                div = "Cannot divide by zero"
+                break
+            div /= n
+        results["divide"] = div
 
-    def average(self):
-        return sum(self.numbers) / len(self.numbers)
+        results["average"] = sum(self.numbers) / len(self.numbers)
+        results["max"] = max(self.numbers)
+        results["min"] = min(self.numbers)
 
-    def maximum(self):
-        return max(self.numbers)
-
-    def minimum(self):
-        return min(self.numbers)
+        return results
 
 
 def main(page: ft.Page):
     page.title = "Calculator"
+    page.window_width = 400
+    page.window_height = 600
+    page.padding = 20
+    page.bgcolor = "#f5f6fa"
 
-    input_field = ft.TextField(label="정수를 입력하세요. : ")
-    result_text = ft.Text()
+    title = ft.Text(
+        "Calculator",
+        size=28,
+        weight="bold",
+        color="#2f3640"
+    )
+
+    input_field = ft.TextField(
+        label="숫자 입력 (쉼표로 구분)",
+        border_radius=10,
+        filled=True,
+        bgcolor="white"
+    )
+
+    result_text = ft.Text(size=16, color="#2f3640")
+
+    result_box = ft.Container(
+        content=result_text,
+        padding=15,
+        border_radius=10,
+        bgcolor="white",
+        shadow=ft.BoxShadow(
+            blur_radius=10,
+            color="#dcdde1"
+        )
+    )
 
     def run_calc(e):
         try:
-            num_list = list(map(int, input_field.value.split(",")))
-            calc = Calculator(num_list)
+            nums = list(map(int, input_field.value.split(",")))
+            calc = Calculator(nums)
+            r = calc.get_all_results()
 
-            question = mode.value
-
-            if question == "1":
-                op = op_input.value
-
-                if op == "+":
-                    result_text.value = str(calc.add())
-                elif op == "-":
-                    result_text.value = str(calc.subtract())
-                elif op == "*":
-                    result_text.value = str(calc.multiply())
-                elif op == "/":
-                    result_text.value = str(calc.divide())
-
-            elif question == "2":
+            if isinstance(r, dict):
                 result_text.value = (
-                    f"Average: {calc.average()}\n"
-                    f"Max: {calc.maximum()}\n"
-                    f"Min: {calc.minimum()}"
+                    f"➕ Add: {r['add']}\n"
+                    f"➖ Subtract: {r['subtract']}\n"
+                    f"✖ Multiply: {r['multiply']}\n"
+                    f"➗ Divide: {r['divide']}\n\n"
+                    f"📊 Average: {r['average']:.2f}\n"
+                    f"🔼 Max: {r['max']}\n"
+                    f"🔽 Min: {r['min']}"
                 )
-
             else:
-                result_text.value = "Invalid option"
+                result_text.value = r
 
         except:
-            result_text.value = "You must enter an integer."
+            result_text.value = "정수를 쉼표로 구분해서 입력하세요"
 
         page.update()
 
-    mode = ft.TextField(label="1: 연산 / 2: 평균, 최대, 최소")
-    op_input = ft.TextField(label="연산자 (+, -, *, /)")
-    btn = ft.ElevatedButton("실행", on_click=run_calc)
+    calc_button = ft.ElevatedButton(
+        "결과 보기",
+        on_click=run_calc,
+        style=ft.ButtonStyle(
+            shape=ft.RoundedRectangleBorder(radius=10),
+            padding=15,
+        ),
+        width=200
+    )
 
     page.add(
-        input_field,
-        mode,
-        op_input,
-        btn,
-        result_text
+        ft.Column(
+            [
+                title,
+                input_field,
+                calc_button,
+                result_box
+            ],
+            alignment="center",
+            horizontal_alignment="center",
+            spacing=20
+        )
     )
 
 
