@@ -201,4 +201,3 @@ if first == 10 or first + second == 10:
 # ================= 최종 점수 =================
 final_scores = game.calculate_live_scores()
 print(f"최종 점수 : {final_scores[-1]}점")
-#중간에 5를 계속 입력하면 10프레임에 전부 스페어 모양으로 처리되는데 해결을 못했습니다
