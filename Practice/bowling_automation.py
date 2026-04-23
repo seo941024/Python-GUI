@@ -81,7 +81,7 @@ class BowlingGame:
 
             else:
                 if self.throw_list[i] == 10:
-                    display_score.append("❌")
+                    display_score.append(f"{'❌':1}")
                     i += 1
                 else:
                     if i+1 < len(self.throw_list) and self.throw_list[i] + self.throw_list[i+1] == 10:
@@ -120,7 +120,7 @@ game = BowlingGame()
 
 # 9프레임 자동 진행
 for i in range(9):
-    Enter=str(input(f"아무 키나 눌러주세요. {i+1}번째 프레임을 자동 플레이 합니다."))
+    Enter=str(input(f"Enter를 눌러주세요. {i+1}번째 프레임을 자동 플레이 합니다."))
     first = random.randint(0, 10)
     time.sleep(1.5)
     game.add_throw(first)
@@ -131,6 +131,7 @@ for i in range(9):
         game.add_throw(second)
 
 # 10프레임
+Enter=str(input(f"Enter를 눌러주세요. 10번째 프레임을 자동 플레이 합니다."))
 first = random.randint(0, 10)
 time.sleep(1.5)
 game.add_throw(first)

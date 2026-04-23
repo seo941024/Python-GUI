@@ -1,203 +1,198 @@
-'''
-볼링 핀 10개.
+import flet as ft
 
-count를 지정
-random 모듈로 랜덤한 첫번째 숫자 구함. > n, 
-그다음은 k = randint(1,10-n), k의 값이 0일때 아닐때로 스페어/일반공 판단.
-
-던질 때 마다 count+=1, count가 1,2 일 때 기준으로 다른 조건으로 시작.
-던지기 직전 count==0 으로 초기화.
-
-일반 공/ 스페어 / 스트라이크
-일반 공 count > 기본 2회
-스트라이크 > 즉시 종료, 다음 공 점수 2회 2배.
-스페어 > 다음 공 점수 1회 2배.
-
-1~9 라운드.
-
-다음 공이 스트라이크가 아닐시, 두배 적용 후 합산> 나머지 공 던지기
-나머지 공 스페어 > 다음 공 점수 2배
-
-모든 공을 던져서 score[i] = 10, score[i+1], score[i+2] 의 값을 score[i]에 저장해서 점수계산.
-score[i]!=10
-
-i=0
-score[0]=10, >> 20
-
-score[1]=5
-score[2]=5, 스페어 >> 20+10+5 // 35
-
-score[3]=5
-score[4]=2, 35 + 7 
-
-score[5]=8
-score[6]=1
-
-score[7]= 
-
-i값의 변동으로는 스코어 기준을 잡을 수 없음.
-
-i는 순차적으로 증가하고있음.
-
-[[10,0] ,[2,8], [1,5], [0,10]]
-
-2중 for로 안쪽까지 돌린다고 가정할 시ㅡ,
-[i][0] = 10 일때
-[i+1][j], [i+1][j+1]를
-
-[i]에 더해서, 출력
-
-[i][0]+[i][1] 즉 두 리스트의 합이 = 10 일때
-[i+1][0] 의 값만 [i]의 합에 더 함
-> sum(items) 그 리스트의 합을 구해줌.
-
-10 라운드.
-일반공은 2회가 끝. 스트라이크,스페어,시 3회째 기회가 주어짐.
-
-최종 점수 산출 : 
-'''
 
 class BowlingGame:
     def __init__(self):
         self.throw_list = []
 
-    # ================= 점수 계산 =================
-    def calculate_live_scores(self):
-        scores = []
-        total = 0
-        i = 0
+    def add_throw(self, pins):
+        if len(self.throw_list) < 21:
+            self.throw_list.append(pins)
 
-        for _ in range(10):
-            if i >= len(self.throw_list):
-                break
-
-            # 스트라이크
-            if self.throw_list[i] == 10:
-                if i + 2 >= len(self.throw_list):
-                    break
-                total += 10 + self.throw_list[i+1] + self.throw_list[i+2]
-                scores.append(total)
-                i += 1
-
-            # 스페어 / 일반
-            else:
-                if i + 1 >= len(self.throw_list):
-                    break
-
-                if self.throw_list[i] + self.throw_list[i+1] == 10:
-                    if i + 2 >= len(self.throw_list):
-                        break
-                    total += 10 + self.throw_list[i+2]
-                else:
-                    total += self.throw_list[i] + self.throw_list[i+1]
-
-                scores.append(total)
-                i += 2
-
-        return scores
-
-    # ================= 화면 출력 =================
-    def show_display(self):
-        display_score = []
+    # -------------------------
+    # throw_list → frames
+    # -------------------------
+    def build_frames(self):
+        frames = []
         i = 0
 
         for frame in range(10):
             if i >= len(self.throw_list):
-                display_score.append(" ")
-                continue
+                break
 
-            # 마지막 프레임
             if frame == 9:
-                result = []
+                frames.append(self.throw_list[i:])
+                break
 
-                while i < len(self.throw_list):
-                    # 스트라이크
-                    if self.throw_list[i] == 10:
-                        result.append("❌")
-                        i += 1
-
-                    else:
-                        # 두 번째 공 존재할 때
-                        if i+1 < len(self.throw_list):
-                            first = self.throw_list[i]
-                            second = self.throw_list[i+1]
-
-                            if first + second == 10:
-                                result.append(str(first))
-                                result.append("/")
-                            else:
-                                result.append(str(first))
-                                result.append(str(second))
-
-                            i += 2
-                        else:
-                            result.append(str(self.throw_list[i]))
-                            i += 1
-
-                display_score.append(" ".join(result))
-
-            # 일반 프레임
+            if self.throw_list[i] == 10:
+                frames.append([10])
+                i += 1
             else:
-                if self.throw_list[i] == 10:
-                    display_score.append("❌")
-                    i += 1
+                if i + 1 < len(self.throw_list):
+                    frames.append([self.throw_list[i], self.throw_list[i + 1]])
                 else:
-                    if i+1 < len(self.throw_list) and self.throw_list[i] + self.throw_list[i+1] == 10:
-                        display_score.append(f"{self.throw_list[i]} /")
-                    elif i+1 < len(self.throw_list):
-                        display_score.append(f"{self.throw_list[i]} {self.throw_list[i+1]}")
-                    else:
-                        display_score.append(str(self.throw_list[i]))
-                    i += 2
+                    frames.append([self.throw_list[i]])
+                i += 2
 
-        return display_score
+        return frames
 
-    # ================= 보드 출력 =================
-    def print_live_board(self):
-        frames = self.show_display()
-        scores = self.calculate_live_scores()
+    # -------------------------
+    # 점수 계산
+    # -------------------------
+    def calc_scores(self, frames):
+        scores = []
+        total = 0
 
-        print("\n======================================")
-        print("프레임:", " | ".join(frames))
+        flat = [pin for frame in frames for pin in frame]
 
-        score_line = []
-        for i in range(10):
-            if i < len(scores):
-                score_line.append(f"{scores[i]:3}")
+        i = 0
+        for frame in range(len(frames)):
+            if i >= len(flat):
+                break
+
+            if flat[i] == 10:
+                if i + 2 < len(flat):
+                    score = 10 + flat[i + 1] + flat[i + 2]
+                else:
+                    break
+                i += 1
+
+            elif i + 1 < len(flat) and flat[i] + flat[i + 1] == 10:
+                if i + 2 < len(flat):
+                    score = 10 + flat[i + 2]
+                else:
+                    break
+                i += 2
+
             else:
-                score_line.append("   ")
+                if i + 1 < len(flat):
+                    score = flat[i] + flat[i + 1]
+                else:
+                    break
+                i += 2
 
-        print("점수  :", " | ".join(score_line))
-        print("======================================\n")
+            total += score
+            scores.append(total)
 
-    # ================= 투구 추가 =================
-    def add_throw(self, pins):
-        self.throw_list.append(pins)
-        self.print_live_board()
-        
-# 1~9 프레임
-game = BowlingGame()
+        return scores
 
-for i in range(9):
-    pin = 10
+    # -------------------------
+    # 출력 포맷
+    # -------------------------
+    def format_frames(self, frames):
+        result = []
 
-    first = int(input(f"{i+1}라운드 첫 투구 (0부터 {pin}사이의 숫자를 입력하세요): "))
-    game.add_throw(first)
+        for i, frame in enumerate(frames):
+            temp = []
 
-    if first != 10:
-        second = int(input(f"{i+1}라운드 두 번째 투구 (0부터 {pin-first}사이의 숫자를 입력하세요): "))
-        game.add_throw(second)
+            if i == 9:
+                for j, val in enumerate(frame):
+                    if val == 10:
+                        temp.append("❌")
+                    elif j > 0 and frame[j - 1] != 10 and frame[j - 1] + val == 10:
+                        temp.append("/")
+                    else:
+                        temp.append("-" if val == 0 else str(val))
+            else:
+                if frame[0] == 10:
+                    temp.append("❌")
+                else:
+                    first = frame[0]
+                    second = frame[1] if len(frame) > 1 else None
 
-# 10프레임
-first = int(input("10라운드 첫 투구 (0부터 10사이의 숫자를 입력하세요): "))
-game.add_throw(first)
+                    temp.append("-" if first == 0 else str(first))
 
-second = int(input(f"10라운드 두 번째 투구 (0부터 {10 if first == 10 else 10 - first}사이의 숫자를 입력하세요): "))
-game.add_throw(second)
-if first == 10 or first + second == 10:
-    third = int(input("10라운드 보너스 투구 (0부터 10사이의 숫자를 입력하세요): "))
-    game.add_throw(third)
+                    if second is not None:
+                        if first + second == 10:
+                            temp.append("/")
+                        else:
+                            temp.append("-" if second == 0 else str(second))
 
-# ================= 최종 점수 =================
-final_scores = game.calculate_live_scores()
-print(f"최종 점수 : {final_scores[-1]}점")
+            result.append(" ".join(temp))
+
+        return result
+
+
+# -------------------------
+# Flet UI
+# -------------------------
+
+def main(page: ft.Page):
+    game = BowlingGame()
+
+    page.title = "🎳 Bowling Game"
+
+    # 🔥 Column을 변수로 잡아야 함 (핵심)
+    main_col = ft.Column()
+
+    input_field = ft.TextField(label="핀 개수 (0~10)", width=200)
+
+    def update_ui():
+        frames = game.build_frames()
+        scores = game.calc_scores(frames)
+        display = game.format_frames(frames)
+
+        # 🔥 새 Row 생성
+        new_frame_row = ft.Row()
+        new_score_row = ft.Row()
+
+        for i in range(10):
+            text = display[i] if i < len(display) else "·"
+
+            new_frame_row.controls.append(
+                ft.Container(
+                    content=ft.Text(text, size=20, weight=ft.FontWeight.BOLD),
+                    width=80,
+                    height=60,
+                    alignment=ft.alignment.center,
+                    border=ft.border.all(1),
+                    border_radius=10
+                )
+            )
+
+            score = str(scores[i]) if i < len(scores) else ""
+
+            new_score_row.controls.append(
+                ft.Container(
+                    content=ft.Text(score, size=16),
+                    width=80,
+                    height=40,
+                    alignment=ft.alignment.center,
+                    border=ft.border.all(1),
+                    border_radius=10
+                )
+            )
+
+        # 🔥 Column 전체 교체 (이게 핵심)
+        main_col.controls[1] = new_frame_row
+        main_col.controls[2] = new_score_row
+
+        page.update()
+
+    def add_click(e):
+        try:
+            val = int(input_field.value)
+
+            if 0 <= val <= 10:
+                game.add_throw(val)
+                input_field.value = ""
+                update_ui()
+
+        except:
+            input_field.value = ""
+
+    add_btn = ft.ElevatedButton("추가", on_click=add_click)
+
+    # 초기 UI 구조 (빈 Row 자리 확보)
+    main_col.controls = [
+        ft.Text("🎳 볼링 점수판", size=30, weight=ft.FontWeight.BOLD),
+        ft.Row(),  # frame 자리
+        ft.Row(),  # score 자리
+        ft.Row([input_field, add_btn])
+    ]
+
+    page.add(main_col)
+    update_ui()
+
+
+ft.app(target=main)
