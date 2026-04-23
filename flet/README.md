@@ -89,7 +89,7 @@ python main.py
 ## ✨ 향후 개선 사항
 
 * 🎨 UI 애니메이션 (스트라이크 효과 등)
-* 🎮 자동 랜덤 투구 모드 추가
+* 🎮 자동 랜덤 투구 모드 추가 / 현재 코드 구현 완료. GUI 미적용
 * 📈 점수 그래프 시각화
 * 💾 게임 기록 저장 기능
 
@@ -97,7 +97,7 @@ python main.py
 
 ## 👤 작성자
 
-* 이름: (지수)
-* GitHub: https://github.com/seo941024-cell
+* 이름: 서지섭
+* GitHub: https://github.com/seo941024
 
 ---
