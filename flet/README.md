@@ -217,6 +217,7 @@ python main.py
 ## flet UI 코드
 ```
 python
+python
 from bowling_func import BowlingGame
 import flet as ft
 
